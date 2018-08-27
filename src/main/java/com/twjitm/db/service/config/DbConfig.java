@@ -7,8 +7,8 @@ package com.twjitm.db.service.config;
  */
 public class DbConfig {
     private String dbId;
-    private String asyncDbOperationSaveWorkerSize;
-    private String asyncDbOperationSelectWorkerSize;
+    private int asyncDbOperationSaveWorkerSize;
+    private int asyncDbOperationSelectWorkerSize;
     private String asyncOperationPackageName;
 
     public void setDbId(String dbId) {
@@ -19,19 +19,19 @@ public class DbConfig {
         return dbId;
     }
 
-    public void setAsyncDbOperationSaveWorkerSize(String asyncDbOperationSaveWorkerSize) {
+    public void setAsyncDbOperationSaveWorkerSize(int asyncDbOperationSaveWorkerSize) {
         this.asyncDbOperationSaveWorkerSize = asyncDbOperationSaveWorkerSize;
     }
 
-    public String getAsyncDbOperationSaveWorkerSize() {
+    public int getAsyncDbOperationSaveWorkerSize() {
         return asyncDbOperationSaveWorkerSize;
     }
 
-    public void setAsyncDbOperationSelectWorkerSize(String asyncDbOperationSelectWorkerSize) {
+    public void setAsyncDbOperationSelectWorkerSize(int asyncDbOperationSelectWorkerSize) {
         this.asyncDbOperationSelectWorkerSize = asyncDbOperationSelectWorkerSize;
     }
 
-    public String getAsyncDbOperationSelectWorkerSize() {
+    public int getAsyncDbOperationSelectWorkerSize() {
         return asyncDbOperationSelectWorkerSize;
     }
 
