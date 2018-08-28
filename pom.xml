@@ -207,12 +207,21 @@
             <artifactId>dom4j</artifactId>
             <version>1.6.1</version>
         </dependency>
+
+        <!--分页插件-->
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper</artifactId>
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.redis</groupId>
+            <artifactId>redis-game-transaction</artifactId>
+            <version>1.8.010</version>
+            <scope>compile</scope>
+        </dependency>
+
 
     </dependencies>
 </project>

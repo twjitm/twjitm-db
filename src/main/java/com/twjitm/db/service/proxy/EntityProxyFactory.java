@@ -1,8 +1,8 @@
 package com.twjitm.db.service.proxy;
 
-import com.snowcattle.game.db.entity.AbstractEntity;
-import com.snowcattle.game.db.entity.IEntity;
-import org.apache.commons.beanutils.BeanUtils;
+import com.twjitm.db.entity.AbstractEntity;
+import com.twjitm.db.entity.IEntity;
+import org.springframework.beans.BeanUtils;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.stereotype.Service;
 
