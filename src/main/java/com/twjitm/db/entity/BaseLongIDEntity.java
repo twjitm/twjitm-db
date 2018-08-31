@@ -20,6 +20,7 @@ public class BaseLongIDEntity extends AbstractEntity<Long> {
     }
 
 
+    @Override
     @MethodSaveProxy(proxy="id")
     public void setId(Long id) {
         this.id = id;

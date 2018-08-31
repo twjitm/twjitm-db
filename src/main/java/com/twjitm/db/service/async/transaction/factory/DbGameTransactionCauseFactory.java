@@ -1,6 +1,6 @@
 package com.twjitm.db.service.async.transaction.factory;
 
-import com.redis.transaction.enums.GameTransactionCause;
+import com.twjitm.transaction.transaction.enums.NettyTransactionCause;
 import org.springframework.stereotype.Service;
 
 /**
@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DbGameTransactionCauseFactory {
-    public GameTransactionCause asyncDbSave = new GameTransactionCause("asyncDbSave");
+    public NettyTransactionCause asyncDbSave = new NettyTransactionCause("asyncDbSave");
 
-    public GameTransactionCause getAsyncDbSave() {
+    public NettyTransactionCause getAsyncDbSave() {
         return asyncDbSave;
     }
 }

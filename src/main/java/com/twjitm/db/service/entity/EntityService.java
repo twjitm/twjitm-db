@@ -136,7 +136,7 @@ public abstract class EntityService<T extends AbstractEntity> implements IEntity
         IDBMapper<T> idbMapper = getTemplateMapper(entity);
         List<T> result = null;
 
-        Map hashMap = new HashMap<>();
+        Map<Object, Object> hashMap = new HashMap<>();
         hashMap.put("sharding_table_index", entity.getSharding_table_index());
         hashMap.put("userId", entity.getUserId());
         EntityProxyWrapper entityProxyWrapper = entity.getEntityProxyWrapper();
@@ -175,6 +175,7 @@ public abstract class EntityService<T extends AbstractEntity> implements IEntity
      *
      * @param entity
      */
+    @Override
     @DbOperation(operation = DbOperationEnum.update)
     public void updateEntity(T entity) {
         long selectId = getShardingId(entity);
@@ -205,6 +206,7 @@ public abstract class EntityService<T extends AbstractEntity> implements IEntity
      *
      * @param entity
      */
+    @Override
     @DbOperation(operation = DbOperationEnum.delete)
     public void deleteEntity(T entity) {
         long selectId = getShardingId(entity);

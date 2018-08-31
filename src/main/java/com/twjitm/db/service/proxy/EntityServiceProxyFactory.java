@@ -1,7 +1,9 @@
 package com.twjitm.db.service.proxy;
 
 
+import com.twjitm.db.service.entity.EntityService;
 import com.twjitm.db.service.redis.NettyRedisService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.stereotype.Service;
@@ -40,11 +42,11 @@ public class EntityServiceProxyFactory {
         return proxyEntityService;
     }
 
-    public RedisService getRedisService() {
+    public NettyRedisService getRedisService() {
         return redisService;
     }
 
-    public void setRedisService(RedisService redisService) {
+    public void setRedisService(NettyRedisService redisService) {
         this.redisService = redisService;
     }
 }

@@ -1,11 +1,14 @@
 package com.twjitm.db.service.async.transaction.factory;
 
-import com.redis.transaction.enums.GameTransactionEntityCause;
-import com.redis.transaction.factory.GameTransactionEntityFactory;
-import com.redis.transaction.service.IRGTRedisService;
-import com.snowcattle.game.db.service.async.transaction.entity.AsyncDBSaveTransactionEntity;
 
+
+import com.twjitm.db.service.async.transaction.entity.AsyncDBSaveTransactionEntity;
+import com.twjitm.db.service.entity.EntityService;
 import com.twjitm.db.service.proxy.EntityProxyFactory;
+import com.twjitm.db.service.redis.NettyRedisService;
+import com.twjitm.transaction.service.redis.NettyTransactionRedisService;
+import com.twjitm.transaction.transaction.enums.NettyTransactionEntityCause;
+import com.twjitm.transaction.transaction.factory.NettyTransactionEntityFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,16 +16,19 @@ import org.springframework.stereotype.Service;
  * Created by twjitm on 2017/4/12.
  */
 @Service
-public class DbGameTransactionEntityFactory extends GameTransactionEntityFactory {
+public class DbGameTransactionEntityFactory extends NettyTransactionEntityFactory {
 
     @Autowired
     private DbGameTransactionKeyFactory dbGameTransactionKeyFactory;
 
     @Autowired
     private EntityProxyFactory entityProxyFactory;
-    public  AsyncDBSaveTransactionEntity createAsyncDBSaveTransactionEntity(GameTransactionEntityCause cause,IRGTRedisService irgtRedisService, String redisKey, String union, EntityService entityService, RedisService redisService){
+
+    public AsyncDBSaveTransactionEntity createAsyncDBSaveTransactionEntity(NettyTransactionEntityCause cause, NettyTransactionRedisService transactionRedisService, String redisKey, String union, EntityService entityService, NettyRedisService redisService){
         String key = dbGameTransactionKeyFactory.getPlayerTransactionEntityKey(cause, redisKey, union);
-        AsyncDBSaveTransactionEntity asyncDBSaveTransactionEntity = new AsyncDBSaveTransactionEntity(cause, union, irgtRedisService, entityService, redisService, entityProxyFactory);
+        AsyncDBSaveTransactionEntity asyncDBSaveTransactionEntity = new AsyncDBSaveTransactionEntity(
+                cause, union, transactionRedisService,
+                entityService, redisService, entityProxyFactory);
         return asyncDBSaveTransactionEntity;
     }
 

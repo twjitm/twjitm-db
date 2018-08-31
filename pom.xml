@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>twjitm-db</groupId>
@@ -216,9 +217,21 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.redis</groupId>
-            <artifactId>redis-game-transaction</artifactId>
-            <version>1.8.010</version>
+            <groupId>twjitm-threads</groupId>
+            <artifactId>twjitm-threads</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>twjitm-transaction</groupId>
+            <artifactId>twjitm-transaction</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>twjitm-core</groupId>
+            <artifactId>twjitm-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 

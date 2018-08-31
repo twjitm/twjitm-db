@@ -49,7 +49,11 @@ public class AsyncDBSaveTransactionEntity extends AbstractNettyTransactionEntity
 
     private AsyncDbOperationMonitor asyncDbOperationMonitor;
 
-    public AsyncDBSaveTransactionEntity(NettyTransactionEntityCause cause, String playerKey, NettyTransactionRedisService transactionRedisService, EntityService entityService, NettyRedisService redisService
+    public AsyncDBSaveTransactionEntity(NettyTransactionEntityCause cause,
+                                        String playerKey, NettyTransactionRedisService
+                                                transactionRedisService,
+                                        EntityService entityService
+                                        , NettyRedisService redisService
             , EntityProxyFactory entityProxyFactory) {
         super(cause, playerKey, transactionRedisService);
         this.playerKey = playerKey;

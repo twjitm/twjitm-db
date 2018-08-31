@@ -1,22 +1,24 @@
 package com.twjitm.db.service.async.transaction.factory;
 
-import com.redis.config.GlobalConstants;
-import com.redis.transaction.enums.GameTransactionEntityCause;
-import com.redis.transaction.factory.GameTransactionKeyFactory;
+
+import com.twjitm.transaction.config.GlobalConstants;
+import com.twjitm.transaction.transaction.enums.NettyTransactionEntityCause;
 import org.springframework.stereotype.Service;
 
 /**
  * Created by twjitm on 2017/4/12.
  */
 @Service
-public class DbGameTransactionKeyFactory extends GameTransactionKeyFactory {
+public class DbGameTransactionKeyFactory /*extends NettyTransactionKeyFactory */ {
     /**
      * 获取玩家锁
+     *
      * @param cause
      * @return
      */
-    public String getPlayerTransactionEntityKey(GameTransactionEntityCause cause, String redisKey, String union){
-        return redisKey + cause.getCause() + GlobalConstants.Strings.commonSplitString + union;
+    public String getPlayerTransactionEntityKey(NettyTransactionEntityCause cause, String redisKey,
+                                                String union) {
+        return redisKey + cause.getCause() + GlobalConstants.Strings.COMMON_SPLIT_STRING + union;
     }
 
 }

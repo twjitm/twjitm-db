@@ -1,6 +1,5 @@
 package com.twjitm.db.common.annotation;
 
-import com.snowcattle.game.db.common.enums.DbOperationEnum;
 import com.twjitm.db.common.enums.DbOperationEnum;
 
 import java.lang.annotation.ElementType;

@@ -1,8 +1,9 @@
 package com.twjitm.db.service.common.uuid;
 
-import com.snowcattle.game.db.common.DbServiceName;
-import com.snowcattle.game.db.service.common.service.IDbService;
-import com.snowcattle.game.db.service.config.DbConfig;
+
+import com.twjitm.db.common.DbServiceName;
+import com.twjitm.db.service.common.service.IDbService;
+import com.twjitm.db.service.config.DbConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
  * 低15为为同一时间序列号32768, 中间10位位服务器节点最大为1024， 高38位位当前时间跟开始时间的差值，(1L << 38) / (1000L * 60 * 60 * 24 * 365) 可以用8年
  */
 @Service
-public class SnowFlakeUUIDService implements IUUIDService, IDbService{
+public class SnowFlakeUUIDService implements IUUIDService, IDbService {
     // ==============================Fields===========================================
     /** 开始时间截 (2017-01-01) */
     private final long twepoch = 1483200000000L;
@@ -54,7 +55,7 @@ public class SnowFlakeUUIDService implements IUUIDService, IDbService{
      * If you deploy different nodes, supplying a unique node id will guarantee the uniqueness
      * of ids generated concurrently on different nodes.
      *
-     * @param node This is an id you use to differentiate different nodes.
+     * @param nodeId  This is an id you use to differentiate different nodes.
      */
     public SnowFlakeUUIDService(int nodeId) {
         if (nodeId < 0 || nodeId > maxNodeId) {
@@ -69,6 +70,7 @@ public class SnowFlakeUUIDService implements IUUIDService, IDbService{
      *
      * @return The next 64-bit integer.
      */
+    @Override
     public long nextId() {
 
         long timestamp = timeGen();
@@ -139,7 +141,7 @@ public class SnowFlakeUUIDService implements IUUIDService, IDbService{
 
     @Override
     public void startup() throws Exception {
-        setNodeId(dbConfig.getDbId());
+        setNodeId(Integer.parseInt(dbConfig.getDbId()));
     }
 
     @Override
