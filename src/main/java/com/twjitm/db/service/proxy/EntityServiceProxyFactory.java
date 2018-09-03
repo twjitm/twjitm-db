@@ -17,8 +17,12 @@ import javax.annotation.Resource;
 @Service
 public class EntityServiceProxyFactory {
 
+    /**
+     * db中的redis
+     */
     @Resource
     private NettyRedisService redisService;
+
 
     @Autowired(required = false)
     private boolean useRedisFlag = true;

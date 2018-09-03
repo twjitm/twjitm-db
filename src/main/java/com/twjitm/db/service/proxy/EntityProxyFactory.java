@@ -13,11 +13,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntityProxyFactory {
 
-    private EntityProxy createProxy(IEntity entity){
+    private EntityProxy createProxy(IEntity entity) {
         return new EntityProxy(entity);
     }
 
-    private <T extends  IEntity> T  createProxyEntity(EntityProxy entityProxy){
+    /**
+     * 高效的反射字节码
+     *
+     * @param entityProxy
+     * @param <T>
+     * @return
+     */
+    private <T extends IEntity> T createProxyEntity(EntityProxy entityProxy) {
         Enhancer enhancer = new Enhancer();
         //设置需要创建子类的类
         enhancer.setSuperclass(entityProxy.getEntity().getClass());
@@ -26,12 +33,12 @@ public class EntityProxyFactory {
         return (T) enhancer.create();
     }
 
-    public <T extends  IEntity> T createProxyEntity(T entity) throws Exception {
+    public <T extends IEntity> T createProxyEntity(T entity) throws Exception {
         EntityProxy entityProxy = createProxy(entity);
         EntityProxyWrapper entityProxyWrapper = new EntityProxyWrapper(entityProxy);
         AbstractEntity proxyEntity = createProxyEntity(entityProxy);
         //注入对象 数值
-        BeanUtils.copyProperties(proxyEntity,entity);
+        BeanUtils.copyProperties(proxyEntity, entity);
         entityProxy.setCollectFlag(true);
         proxyEntity.setEntityProxyWrapper(entityProxyWrapper);
         return (T) proxyEntity;

@@ -41,6 +41,15 @@ public class EntityServiceProxy<T extends EntityService>  implements MethodInter
         this.useRedisFlag = useRedisFlag;
     }
 
+    /**
+     * spring 方法拦截
+     * @param obj
+     * @param method
+     * @param args
+     * @param methodProxy
+     * @return
+     * @throws Throwable
+     */
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Object result = null;
@@ -51,24 +60,24 @@ public class EntityServiceProxy<T extends EntityService>  implements MethodInter
             //进行数据库操作
             DbOperationEnum dbOperationEnum = dbOperation.operation();
             switch (dbOperationEnum) {
-                case insert:
+                case INSERT:
                     result = methodProxy.invokeSuper(obj, args);
                     AbstractEntity abstractEntity = (AbstractEntity) args[0];
                     EntityUtils.updateAllFieldEntity(redisService, abstractEntity);
                     break;
-                case update:
+                case UPDATE:
                     result = methodProxy.invokeSuper(obj, args);
                     abstractEntity = (AbstractEntity) args[0];
                     EntityUtils.updateChangedFieldEntity(redisService, abstractEntity);
                     break;
-                case query:
+                case QUERY:
                     abstractEntity = (AbstractEntity) args[0];
                     if (abstractEntity != null) {
                         if (abstractEntity instanceof RedisInterface) {
                             RedisInterface redisInterface = (RedisInterface) abstractEntity;
                             result = redisService.getObjectFromHash(EntityUtils.getRedisKey(redisInterface), abstractEntity.getClass());
                         } else {
-                            proxyLogger.error("query interface RedisListInterface " + abstractEntity.getClass().getSimpleName() + " use RedisInterface " + abstractEntity.toString());
+                            proxyLogger.error("QUERY interface RedisListInterface " + abstractEntity.getClass().getSimpleName() + " use RedisInterface " + abstractEntity.toString());
                         }
                     }
                     if (result == null) {
@@ -79,7 +88,7 @@ public class EntityServiceProxy<T extends EntityService>  implements MethodInter
                         }
                     }
                     break;
-                case queryList:
+                case QUERY_LIST:
                     abstractEntity = (AbstractEntity) args[0];
                     if (abstractEntity != null) {
                         if (abstractEntity instanceof RedisListInterface) {
@@ -89,7 +98,7 @@ public class EntityServiceProxy<T extends EntityService>  implements MethodInter
                                 result = filterEntity((List<IEntity>) result, abstractEntity);
                             }
                         } else {
-                            proxyLogger.error("query interface RedisInterface " + abstractEntity.getClass().getSimpleName() + " use RedisListInterface " + abstractEntity.toString());
+                            proxyLogger.error("QUERY interface RedisInterface " + abstractEntity.getClass().getSimpleName() + " use RedisListInterface " + abstractEntity.toString());
                         }
                     }
                     if (result == null) {
@@ -100,22 +109,22 @@ public class EntityServiceProxy<T extends EntityService>  implements MethodInter
                         }
                     }
                     break;
-                case delete:
+                case DELETE:
                     result = methodProxy.invokeSuper(obj, args);
                     abstractEntity = (AbstractEntity) args[0];
                     EntityUtils.deleteEntity(redisService, abstractEntity);
                     break;
-                case insertBatch:
+                case INSERT_BATCH:
                     result = methodProxy.invokeSuper(obj, args);
                     List<AbstractEntity> entityList = (List<AbstractEntity>) args[0];
                     EntityUtils.updateAllFieldEntityList(redisService, entityList);
                     break;
-                case updateBatch:
+                case UPDATE_BATCH:
                     result = methodProxy.invokeSuper(obj, args);
                     entityList = (List<AbstractEntity>) args[0];
                     EntityUtils.updateChangedFieldEntityList(redisService, entityList);
                     break;
-                case deleteBatch:
+                case DELETE_BATCH:
                     result = methodProxy.invokeSuper(obj, args);
                     entityList = (List<AbstractEntity>) args[0];
                     EntityUtils.deleteEntityList(redisService, entityList);

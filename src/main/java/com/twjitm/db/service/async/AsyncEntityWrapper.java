@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 
 import com.twjitm.db.common.JsonSerializer;
 import com.twjitm.db.common.enums.DbOperationEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +15,10 @@ import java.util.Map;
 /**
  * Created by twjitm on 17/4/6.
  * 异步实体封装箱, 里面包含了实体的快照
- *  所有需要异步存储的实体，都会包装在这里，然后传递到异步队列里面
+ * 所有需要异步存储的实体，都会包装在这里，然后传递到异步队列里面
  */
 public class AsyncEntityWrapper implements JsonSerializer {
+    Logger logger = LoggerFactory.getLogger(AsyncEntityWrapper.class);
 
     /**
      * 包装时间
@@ -23,25 +26,31 @@ public class AsyncEntityWrapper implements JsonSerializer {
     private long wrapperTime;
 
     /**
-     *
+     * 执行类型
      */
     private DbOperationEnum dbOperationEnum;
 
-    private Map<String ,String> params = new HashMap<>();
+    /**
+     * 参数集和
+     */
+    private Map<String, String> params = new HashMap<>();
 
-    private List<Map<String ,String>> paramList = new ArrayList<>();
+    /**
+     * 参数集和
+     */
+    private List<Map<String, String>> paramList = new ArrayList<>();
 
     public AsyncEntityWrapper() {
 
     }
 
-    public AsyncEntityWrapper(DbOperationEnum dbOperationEnum, Map<String ,String> params)  {
+    public AsyncEntityWrapper(DbOperationEnum dbOperationEnum, Map<String, String> params) {
         this.dbOperationEnum = dbOperationEnum;
         this.wrapperTime = System.currentTimeMillis();
         this.params = params;
     }
 
-    public AsyncEntityWrapper(DbOperationEnum dbOperationEnum, List<Map<String ,String>> paramList)  {
+    public AsyncEntityWrapper(DbOperationEnum dbOperationEnum, List<Map<String, String>> paramList) {
         this.dbOperationEnum = dbOperationEnum;
         this.wrapperTime = System.currentTimeMillis();
         this.paramList = paramList;
@@ -71,11 +80,13 @@ public class AsyncEntityWrapper implements JsonSerializer {
 
     @Override
     public void deserialize(String pack) {
-        AsyncEntityWrapper asyncEntityWrapper= JSON.parseObject(pack, this.getClass());
+        AsyncEntityWrapper asyncEntityWrapper = JSON.parseObject(pack, this.getClass());
         this.setWrapperTime(asyncEntityWrapper.getWrapperTime());
         this.setDbOperationEnum(asyncEntityWrapper.getDbOperationEnum());
         this.setParams(asyncEntityWrapper.getParams());
         this.setParamList(asyncEntityWrapper.getParamList());
+        logger.info("序列号执行数据成功");
+
     }
 
     public Map<String, String> getParams() {

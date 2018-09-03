@@ -1,7 +1,6 @@
 package com.twjitm.db.service.entity;
 
 
-
 import com.twjitm.core.common.factory.classload.NettyClassloader;
 import com.twjitm.db.common.DbServiceName;
 import com.twjitm.db.common.Loggers;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,7 +30,8 @@ public class AsyncOperationRegistry implements IDbService {
     @Autowired
     private DbConfig dbConfig;
 
-    BeanUtil beanUtil;
+    @Resource
+    private BeanUtil beanUtil;
 
     /**
      * 包体扫描
@@ -70,10 +71,13 @@ public class AsyncOperationRegistry implements IDbService {
                         - (ext.length()));
                 Class<?> messageClass = Class.forName(realClass);
 
-                logger.info("AsyncEntityOperation load:" + messageClass);
+                logger.info("异步实体操作加载类:" + messageClass);
                 AsyncEntityOperation asyncEntityOperation = messageClass.getAnnotation(AsyncEntityOperation.class);
                 if (asyncEntityOperation != null) {
-                    AsyncDbOperation asyncDbOperation = (AsyncDbOperation) beanUtil.getBean(asyncEntityOperation.bean());
+                    AsyncDbOperation asyncDbOperation = (AsyncDbOperation)
+                            beanUtil.getBean
+                            (asyncEntityOperation.bean());
+
                     opeartionMap.put(messageClass.getSimpleName(), asyncDbOperation);
                 }
             }

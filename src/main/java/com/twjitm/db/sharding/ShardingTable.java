@@ -1,7 +1,8 @@
 package com.twjitm.db.sharding;
 
 /**
- * Created by twjitm on 17/3/20.
+ * .
+ * 分表策略
  * 基础实现shardingTable
  */
 public class ShardingTable extends AbstractShardingTable {

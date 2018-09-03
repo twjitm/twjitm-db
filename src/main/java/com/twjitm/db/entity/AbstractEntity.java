@@ -12,7 +12,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Created by twjitm on 17/3/16.
+ * 抽象事务实体，抽象事物实体为基础实体。
+ * 游戏中的所有的数据库表对象都需要继承此对象。
+ * @param <ID>
  */
 @EntitySave
 public abstract  class AbstractEntity<ID extends Serializable> extends ShardingTable implements ISoftDeleteEntity<ID>{

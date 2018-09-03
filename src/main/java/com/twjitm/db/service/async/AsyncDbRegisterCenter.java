@@ -62,10 +62,10 @@ public class AsyncDbRegisterCenter implements IDbService {
      */
     public void asyncRegisterEntity(EntityService entityService, DbOperationEnum dbOperationEnum, AbstractEntity entity){
         AsyncEntityWrapper asyncEntityWrapper = null;
-        if(dbOperationEnum.equals(DbOperationEnum.insert) || dbOperationEnum.equals(DbOperationEnum.delete)){
+        if(dbOperationEnum.equals(DbOperationEnum.INSERT) || dbOperationEnum.equals(DbOperationEnum.DELETE)){
             Map<String, String> map = EntityUtils.getCacheValueMap(entity);
             asyncEntityWrapper = new AsyncEntityWrapper(dbOperationEnum, map);
-        }else if(dbOperationEnum.equals(DbOperationEnum.update)){
+        }else if(dbOperationEnum.equals(DbOperationEnum.UPDATE)){
             Map<String, String> map = EntityUtils.getProxyChangedCacheValueMap(entity);
             asyncEntityWrapper = new AsyncEntityWrapper(dbOperationEnum, map);
         }
@@ -84,7 +84,7 @@ public class AsyncDbRegisterCenter implements IDbService {
     public void asyncBatchRegisterEntity(EntityService entityService, DbOperationEnum dbOperationEnum, List<AbstractEntity> entitiyList){
         AsyncEntityWrapper asyncEntityWrapper = null;
         if(entitiyList.size() > 0) {
-            if (dbOperationEnum.equals(DbOperationEnum.insertBatch) || dbOperationEnum.equals(DbOperationEnum.deleteBatch)) {
+            if (dbOperationEnum.equals(DbOperationEnum.INSERT_BATCH) || dbOperationEnum.equals(DbOperationEnum.DELETE_BATCH)) {
                 List<Map<String, String>> paramList = new ArrayList<>();
                 for (AbstractEntity entity : entitiyList) {
                     Map<String, String> map = EntityUtils.getCacheValueMap(entity);
@@ -94,7 +94,7 @@ public class AsyncDbRegisterCenter implements IDbService {
                     }
                 }
                 asyncEntityWrapper = new AsyncEntityWrapper(dbOperationEnum, paramList);
-            } else if (dbOperationEnum.equals(DbOperationEnum.updateBatch)) {
+            } else if (dbOperationEnum.equals(DbOperationEnum.UPDATE_BATCH)) {
                 List<Map<String, String>> paramList = new ArrayList<>();
                 for (AbstractEntity entity : entitiyList) {
                     Map<String, String> map = EntityUtils.getProxyChangedCacheValueMap(entity);

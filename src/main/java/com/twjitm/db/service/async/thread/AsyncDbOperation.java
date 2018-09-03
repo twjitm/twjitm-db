@@ -2,29 +2,30 @@ package com.twjitm.db.service.async.thread;
 
 
 import com.twjitm.db.common.Loggers;
+import com.twjitm.db.service.async.transaction.entity.AsyncDBSaveTransactionEntity;
 import com.twjitm.db.service.async.transaction.factory.DbGameTransactionCauseFactory;
 import com.twjitm.db.service.async.transaction.factory.DbGameTransactionEntityCauseFactory;
 import com.twjitm.db.service.async.transaction.factory.DbGameTransactionEntityFactory;
 import com.twjitm.db.service.entity.EntityService;
-import com.twjitm.db.service.proxy.EntityProxyFactory;
 import com.twjitm.db.service.redis.AsyncRedisKeyEnum;
 import com.twjitm.db.service.redis.NettyRedisService;
 import com.twjitm.db.sharding.EntityServiceShardingStrategy;
-
-import com.twjitm.threads.common.executor.NettyUnorderThreadPollExecutor;
-
+import com.twjitm.transaction.service.redis.NettyTransactionRedisService;
+import com.twjitm.transaction.service.transaction.NettyTransactionService;
+import com.twjitm.transaction.transaction.enums.NettyTransactionCommitResult;
+import com.twjitm.transaction.transaction.enums.NettyTransactionEntityCause;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.ParameterizedType;
+import javax.annotation.Resource;
 import java.util.TimerTask;
 
 /**
  * Created by twjitm on 17/4/10.
  * 异步执行更新中心
- *  这个类采用模版编程
+ * 这个类采用模版编程
  */
 @Service
 public abstract class AsyncDbOperation<T extends EntityService> extends TimerTask {
@@ -36,166 +37,114 @@ public abstract class AsyncDbOperation<T extends EntityService> extends TimerTas
     @Autowired
     private NettyRedisService redisService;
 
-   /* *//**
-     * 事务redis服务
-     *//*
-    @Autowired
-    private RGTRedisService rgtRedisService;*/
+    /**
+     * 事务redis服务:transaction 包提供的事务redis服务
+     */
+    @Resource
+    private NettyTransactionRedisService rgtRedisService;
 
     /**
      * 事务服务
      */
-   /* @Autowired
-    private TransactionService transactionService;*/
+    @Resource
+    private NettyTransactionService transactionService;
 
+    /**
+     * 游戏事物实体工厂
+     */
     @Autowired
     private DbGameTransactionEntityFactory dbGameTransactionEntityFactory;
-
+    /**
+     * 事务实体参数
+     */
     @Autowired
     private DbGameTransactionEntityCauseFactory dbGameTransactionEntityCauseFactory;
 
+    /**
+     * 事务实体参数工厂
+     */
     @Autowired
     private DbGameTransactionCauseFactory dbGameTransactionCauseFactory;
-
-    @Autowired
-    private EntityProxyFactory entityProxyFactory;
-
-    /**
-     * 执行db落得第线程数量
-     */
-    private NettyUnorderThreadPollExecutor operationExecutor;
 
     /**
      * 监视器
      */
+    @Resource
     private AsyncDbOperationMonitor asyncDbOperationMonitor;
 
-    public NettyUnorderThreadPollExecutor getOperationExecutor() {
-        return operationExecutor;
-    }
-
-    public void setOperationExecutor(NettyUnorderThreadPollExecutor operationExecutor) {
-        this.operationExecutor = operationExecutor;
-    }
 
     @Override
     public void run() {
-        if(operationLogger.isDebugEnabled()){
-            operationLogger.debug("bootstrap async db operation");
+        if (operationLogger.isDebugEnabled()) {
+            operationLogger.debug("启动异步db操作");
         }
         asyncDbOperationMonitor.start();
         EntityService entityService = getWrapperEntityService();
         EntityServiceShardingStrategy entityServiceShardingStrategy = entityService.getEntityServiceShardingStrategy();
         int size = entityServiceShardingStrategy.getDbCount();
-        for(int i = 0; i < size; i++){
-            saveDb(i, entityService);
+        for (int i = 0; i < size; i++) {
+            asyncSaveDataToDb(i, entityService);
         }
         asyncDbOperationMonitor.printInfo(this.getClass().getSimpleName());
         asyncDbOperationMonitor.stop();
     }
 
     /**
-     * 存储db
+     * 将保存在redis队列中的数据保存到关系型数据库中。存储db
+     *
      * @param dbId
      * @param entityService
      */
-    public void saveDb(int dbId, EntityService entityService){
+    public void asyncSaveDataToDb(int dbId, EntityService entityService) {
         String simpleClassName = entityService.getEntityTClass().getSimpleName();
-        String dbRedisKey = AsyncRedisKeyEnum.ASYNC_DB.getKey() + dbId + "#" + entityService.getEntityTClass().getSimpleName();
+        String dbRedisKey = AsyncRedisKeyEnum.ASYNC_DB.getKey() + dbId + "#" + simpleClassName;
+        //获取队列长度，
         long saveSize = redisService.scardString(dbRedisKey);
-        for(long k = 0; k < saveSize; k++){
+
+        //从队列里面把需要保存的数据取取出来
+        for (long k = 0; k < saveSize; k++) {
             String playerKey = redisService.spopString(dbRedisKey);
-            if(StringUtils.isEmpty(playerKey)){
+            if (StringUtils.isEmpty(playerKey)) {
                 break;
             }
-            //@TODO hhah
             //如果性能不够的话，这里可以采用countdownlatch， 将下面逻辑进行封装，执行多线程更新
 
-            //查找玩家数据进行存储 进行redis-game-transaction 加锁
-           /* GameTransactionEntityCause gameTransactionEntityCause = dbGameTransactionEntityCauseFactory.getAsyncDbSave();
-            AsyncDBSaveTransactionEntity asyncDBSaveTransactionEntity = dbGameTransactionEntityFactory.createAsyncDBSaveTransactionEntity(gameTransactionEntityCause, rgtRedisService, simpleClassName, playerKey, entityService, redisService);
+            //查找玩家数据进行存储 进行twjitm-transaction 加锁
+
+            //事务实体产生的原因
+            NettyTransactionEntityCause gameTransactionEntityCause = dbGameTransactionEntityCauseFactory
+                    .getAsyncDbSave();
+
+            //异步事务实体
+            AsyncDBSaveTransactionEntity asyncDBSaveTransactionEntity =
+                    dbGameTransactionEntityFactory.createAsyncDBSaveTransactionEntity(
+                            gameTransactionEntityCause,
+                            rgtRedisService,
+                            simpleClassName,
+                            playerKey,
+                            entityService,
+                            redisService);
+
+            //设置监视器
             asyncDBSaveTransactionEntity.setAsyncDbOperationMonitor(asyncDbOperationMonitor);
-            GameTransactionCommitResult commitResult = transactionService.commitTransaction(dbGameTransactionCauseFactory.getAsyncDbSave(), asyncDBSaveTransactionEntity);
-            if(!commitResult.equals(GameTransactionCommitResult.SUCCESS)){
+
+            //提交事务
+            NettyTransactionCommitResult commitResult = transactionService.commitTransaction
+                    (dbGameTransactionCauseFactory.getAsyncDbSave(),
+                            asyncDBSaveTransactionEntity);
+
+            if (!commitResult.equals(NettyTransactionCommitResult.SUCCESS)) {
                 //如果事务失败，说明没有权限禁行数据存储操作,需要放回去下次继续存储
                 redisService.saddStrings(dbRedisKey, playerKey);
             }
-            if(operationLogger.isDebugEnabled()) {
-                operationLogger.debug("async save success" + playerKey);
-            }*/
+
+            if (operationLogger.isDebugEnabled()) {
+                operationLogger.debug("异步保存成功" + playerKey);
+            }
         }
     }
 
-    //获取模版参数类
-    public Class<T> getEntityTClass(){
-        Class classes = getClass();
-        Class result = (Class<T>) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0];
-        return result;
-    }
-
     public abstract EntityService getWrapperEntityService();
-
-    public NettyRedisService getRedisService() {
-        return redisService;
-    }
-
-    public void setRedisService(NettyRedisService redisService) {
-        this.redisService = redisService;
-    }
-
-    public DbGameTransactionEntityFactory getDbGameTransactionEntityFactory() {
-        return dbGameTransactionEntityFactory;
-    }
-
-    public void setDbGameTransactionEntityFactory(DbGameTransactionEntityFactory dbGameTransactionEntityFactory) {
-        this.dbGameTransactionEntityFactory = dbGameTransactionEntityFactory;
-    }
-
-    public DbGameTransactionEntityCauseFactory getDbGameTransactionEntityCauseFactory() {
-        return dbGameTransactionEntityCauseFactory;
-    }
-
-    public void setDbGameTransactionEntityCauseFactory(DbGameTransactionEntityCauseFactory dbGameTransactionEntityCauseFactory) {
-        this.dbGameTransactionEntityCauseFactory = dbGameTransactionEntityCauseFactory;
-    }
-
-   /* public RGTRedisService getRgtRedisService() {
-        return rgtRedisService;
-    }
-
-    public void setRgtRedisService(RGTRedisService rgtRedisService) {
-        this.rgtRedisService = rgtRedisService;
-    }*/
-
-    /*public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }*/
-
-    public DbGameTransactionCauseFactory getDbGameTransactionCauseFactory() {
-        return dbGameTransactionCauseFactory;
-    }
-
-    public void setDbGameTransactionCauseFactory(DbGameTransactionCauseFactory dbGameTransactionCauseFactory) {
-        this.dbGameTransactionCauseFactory = dbGameTransactionCauseFactory;
-    }
-
-
-    public EntityProxyFactory getEntityProxyFactory() {
-        return entityProxyFactory;
-    }
-
-    public void setEntityProxyFactory(EntityProxyFactory entityProxyFactory) {
-        this.entityProxyFactory = entityProxyFactory;
-    }
-
-    public AsyncDbOperationMonitor getAsyncDbOperationMonitor() {
-        return asyncDbOperationMonitor;
-    }
 
     public void setAsyncDbOperationMonitor(AsyncDbOperationMonitor asyncDbOperationMonitor) {
         this.asyncDbOperationMonitor = asyncDbOperationMonitor;

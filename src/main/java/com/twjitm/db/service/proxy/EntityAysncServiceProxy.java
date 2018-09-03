@@ -47,49 +47,49 @@ public class EntityAysncServiceProxy<T extends EntityService> extends  EntitySer
             //进行数据库操作
             DbOperationEnum dbOperationEnum = dbOperation.operation();
             switch (dbOperationEnum) {
-                case insert:
+                case INSERT:
                     AbstractEntity abstractEntity = (AbstractEntity) args[0];
                     EntityUtils.updateAllFieldEntity(redisService, abstractEntity);
                     asyncSaveEntity((EntityService) obj, dbOperationEnum, abstractEntity);
                     break;
-                case insertBatch:
+                case INSERT_BATCH:
                     List<AbstractEntity> entityList = (List<AbstractEntity>) args[0];
                     EntityUtils.updateAllFieldEntityList(redisService, entityList);
                     asyncBatchSaveEntity((EntityService)obj, dbOperationEnum, entityList);
                     break;
-                case update:
+                case UPDATE:
                     abstractEntity = (AbstractEntity) args[0];
                     EntityUtils.updateChangedFieldEntity(redisService, abstractEntity);
                     asyncSaveEntity((EntityService) obj, dbOperationEnum, abstractEntity);
                     break;
-                case updateBatch:
+                case UPDATE_BATCH:
                     entityList = (List<AbstractEntity>) args[0];
                     EntityUtils.updateChangedFieldEntityList(redisService, entityList);
                     asyncBatchSaveEntity((EntityService) obj, dbOperationEnum, entityList);
                     break;
-                case delete:
+                case DELETE:
                     abstractEntity = (AbstractEntity) args[0];
 //                    deleteEntity(abstractEntity);
                     //如果是删除， db删除后执行回调
                     asyncSaveEntity((EntityService) obj, dbOperationEnum, abstractEntity);
                     break;
-                case deleteBatch:
+                case DELETE_BATCH:
                     entityList = (List<AbstractEntity>) args[0];
                     EntityUtils.deleteEntityList(redisService, entityList);
                     asyncBatchSaveEntity((EntityService) obj, dbOperationEnum, entityList);
                     break;
-                case query:
+                case QUERY:
                     abstractEntity = (AbstractEntity) args[0];
                     if (abstractEntity != null) {
                         if (abstractEntity instanceof RedisInterface) {
                             RedisInterface redisInterface = (RedisInterface) abstractEntity;
                             result = redisService.getObjectFromHash(EntityUtils.getRedisKey(redisInterface), abstractEntity.getClass());
                         } else {
-                            proxyLogger.error("query interface RedisListInterface " + abstractEntity.getClass().getSimpleName() + " use RedisInterface " + abstractEntity.toString());
+                            proxyLogger.error("QUERY interface RedisListInterface " + abstractEntity.getClass().getSimpleName() + " use RedisInterface " + abstractEntity.toString());
                         }
                     }
                     break;
-                case queryList:
+                case QUERY_LIST:
                     abstractEntity = (AbstractEntity) args[0];
                     if (abstractEntity != null) {
                         if (abstractEntity instanceof RedisListInterface) {
@@ -99,7 +99,7 @@ public class EntityAysncServiceProxy<T extends EntityService> extends  EntitySer
                                 result = filterEntity((List<IEntity>) result, abstractEntity);
                             }
                         } else {
-                            proxyLogger.error("query interface RedisInterface " + abstractEntity.getClass().getSimpleName() + " use RedisListInterface " + abstractEntity.toString());
+                            proxyLogger.error("QUERY interface RedisInterface " + abstractEntity.getClass().getSimpleName() + " use RedisListInterface " + abstractEntity.toString());
                         }
                     }
                     break;

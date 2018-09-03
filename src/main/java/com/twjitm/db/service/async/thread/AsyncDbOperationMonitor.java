@@ -2,6 +2,7 @@ package com.twjitm.db.service.async.thread;
 
 import com.twjitm.db.common.Loggers;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -9,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by twjitm on 2017/4/18.
  * 监视器
  */
+@Service
 public class AsyncDbOperationMonitor{
 
     private Logger logger = Loggers.dbServerLogger;
