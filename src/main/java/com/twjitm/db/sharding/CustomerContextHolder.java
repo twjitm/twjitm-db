@@ -12,7 +12,7 @@ public class CustomerContextHolder {
 
 
     public  static String getCustomerType() {
-        return (String) contextHolder.get();
+        return  contextHolder.get();
     }
     /**
      * 通过字符串选择数据源
